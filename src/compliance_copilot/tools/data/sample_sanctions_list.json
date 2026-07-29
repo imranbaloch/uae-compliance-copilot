@@ -1,0 +1,13 @@
+{
+  "list_source": "sample-consolidated-list (bundled demo data, NOT a live OFAC/UN feed)",
+  "entries": [
+    {"name": "Al Farooq Trading FZE", "country": "AE", "entity_type": "organization"},
+    {"name": "Northline Shipping Corp", "country": "PA", "entity_type": "organization"},
+    {"name": "Viktor Aleksandrovich Petrov", "country": "RU", "entity_type": "individual"},
+    {"name": "Golden Dune General Trading LLC", "country": "AE", "entity_type": "organization"},
+    {"name": "Crescent Star Holdings Ltd", "country": "VG", "entity_type": "organization"},
+    {"name": "Ahmed Yusuf Al-Rashidi", "country": "SY", "entity_type": "individual"},
+    {"name": "Pinnacle Offshore Ventures Inc", "country": "PA", "entity_type": "organization"},
+    {"name": "Silk Route Commodities DMCC", "country": "AE", "entity_type": "organization"}
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "invoices": [
+    {
+      "invoice_id": "INV-1001",
+      "issue_date": "2026-07-05",
+      "seller_trn": "100234567800003",
+      "buyer_trn": "100987654300003",
+      "amount": "10000.00",
+      "vat_amount": "500.00",
+      "tax_category": "standard_rated",
+      "counterparty_name": "Al Farooq Trading FZE"
+    },
+    {
+      "invoice_id": "INV-1002",
+      "issue_date": "2026-07-10",
+      "seller_trn": null,
+      "amount": "4200.00",
+      "vat_amount": "0.00",
+      "counterparty_name": "Bright Horizon Consultancy LLC",
+      "raw": {"description": "Consulting services for a Dubai-based client"}
+    },
+    {
+      "invoice_id": "INV-1002",
+      "issue_date": "2026-07-10",
+      "seller_trn": null,
+      "amount": "4200.00",
+      "vat_amount": "0.00",
+      "counterparty_name": "Bright Horizon Consultancy LLC"
+    }
+  ],
+  "transactions": [
+    {
+      "transaction_id": "TXN-5001",
+      "date": "2026-07-06",
+      "amount": "10500.00",
+      "direction": "credit",
+      "counterparty_name": "Al Farooq Trading FZE",
+      "memo": "Invoice INV-1001 settlement"
+    },
+    {
+      "transaction_id": "TXN-5002",
+      "date": "2026-07-11",
+      "amount": "9000.00",
+      "direction": "debit",
+      "counterparty_name": "Golden Dune General Trading LLC",
+      "memo": "Supplier payment"
+    }
+  ],
+  "counterparties": [
+    {"name": "Al Farooq Trading FZE", "country": "AE"},
+    {"name": "Bright Horizon Consultancy LLC", "country": "AE"},
+    {"name": "Golden Dune General Trading LLC", "country": "AE"}
+  ]
+}
