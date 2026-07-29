@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="panel">
+  <h2>Run a compliance review</h2>
+  <form action="/web/reports" method="post" enctype="multipart/form-data">
+    <label for="file">Upload a JSON file (invoices / transactions / counterparties)</label>
+    <input type="file" id="file" name="file" accept=".json,application/json" />
+    <div class="row">
+      <button type="submit">Run review</button>
+    </div>
+  </form>
+  <form action="/web/reports/sample" method="post" style="margin-top:0.75rem;">
+    <button type="submit" class="secondary">Try it with sample data</button>
+  </form>
+  {% if error %}<p style="color:#f0574f;margin-top:1rem;">{{ error }}</p>{% endif %}
+</div>
+
+<div class="panel">
+  <h2>Recent runs</h2>
+  {% if reports %}
+    <div class="recent-list">
+      {% for r in reports %}
+      <div class="recent-row">
+        <a href="/web/reports/{{ r.id }}">{{ r.created_at }}</a>
+        <span>
+          <span class="pill">risk {{ r.risk_score }}/100</span>
+          <span class="muted">{{ r.summary[:60] }}{% if r.summary|length > 60 %}&hellip;{% endif %}</span>
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty">No runs yet — upload a file or try the sample data above.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

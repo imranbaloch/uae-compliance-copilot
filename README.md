@@ -11,7 +11,7 @@ sanctions/PEP screening.
 ## Why this exists
 
 UAE SMEs now have to reconcile financial records against Corporate Tax, VAT, and (as of the pilot that began July
-2026) a new mandatory e-invoicing schema — largely by hand, with no dedicated compliance team. Non-compliant
+2026) a new mandatory e-invoicing schema -- largely by hand, with no dedicated compliance team. Non-compliant
 invoices carry a flat AED 2,500 penalty each; e-invoicing non-compliance carries AED 5,000/month. Meanwhile UAE
 DNFBPs and fintechs post hundreds of open AML/KYC compliance roles at any given time, signaling the same
 manual-review bottleneck. See [`docs/research.md`](docs/research.md) for the full evidence and
@@ -69,7 +69,7 @@ ollama pull llama3.1
 ...or edit `.env` to point at a cloud provider (see below), or skip the LLM entirely for a first look:
 
 ```bash
-# No LLM required — see deterministic rule-based findings + fallback report text
+# No LLM required -- see deterministic rule-based findings + fallback report text
 python examples/run_with_mock.py
 
 # Full run against your configured provider
@@ -79,18 +79,18 @@ python examples/run_sample.py
 compliance-copilot examples/sample_data/sample_input.json
 ```
 
-Input shape is a JSON object with `invoices`, `transactions`, and `counterparties` arrays — see
+Input shape is a JSON object with `invoices`, `transactions`, and `counterparties` arrays -- see
 `examples/sample_data/sample_input.json` for the full schema (backed by the Pydantic models in
 `src/compliance_copilot/memory/state.py`).
 
 ## Configuration reference
 
-All configuration is via environment variables (or a `.env` file) — see [`.env.example`](.env.example) for the
+All configuration is via environment variables (or a `.env` file) -- see [`.env.example`](.env.example) for the
 canonical, commented list. Key variables:
 
 | Variable | Purpose |
 |---|---|
-| `LLM_PROVIDER` | `openai` \| `anthropic` \| `ollama` \| `azure` \| `groq` \| `custom` — default provider for any agent role without an override |
+| `LLM_PROVIDER` | `openai` \| `anthropic` \| `ollama` \| `azure` \| `groq` \| `custom` -- default provider for any agent role without an override |
 | `LLM_MODEL` | Model name string for the default provider |
 | `LLM_BASE_URL` | Endpoint override (required for `ollama`/`custom`) |
 | `LLM_API_KEY` | API key (not required for `ollama`) |
@@ -103,7 +103,7 @@ canonical, commented list. Key variables:
 
 ## Swapping LLM providers
 
-Every agent calls its LLM through `compliance_copilot.llm.LLMProvider` — never a vendor SDK directly — so switching
+Every agent calls its LLM through `compliance_copilot.llm.LLMProvider` -- never a vendor SDK directly -- so switching
 providers is a configuration change, not a code change:
 
 ```bash
@@ -152,10 +152,48 @@ pytest                                    # run the suite
 pytest --cov=src --cov-report=term-missing  # with coverage (currently 94%)
 ```
 
-The entire suite runs offline against `MockProvider` — no API keys or network access required. `tests/unit/` covers
+The entire suite runs offline against `MockProvider` -- no API keys or network access required. `tests/unit/` covers
 individual agents, tools, providers (with `httpx` monkeypatched), the graph engine, and config resolution;
-`tests/integration/` covers full-pipeline execution, conditional node skipping, partial-failure recovery, and
-provider/role switching.
+`tests/integration/` covers full-pipeline execution, conditional node skipping, partial-failure recovery,
+provider/role switching, and the API layer (`tests/integration/test_api.py`).
+
+## API & Web layer
+
+A FastAPI service (`api/`) sits on top of the library -- it's a pure *consumer* of `Supervisor`, so none of the
+core agent code changes to support it. It gives you a JSON API for programmatic use and a small server-rendered
+web dashboard for humans, both backed by the same pipeline run.
+
+```bash
+pip install -e ".[dev,api]"
+make api
+# or: uvicorn api.app:app --reload
+```
+
+Then open `http://127.0.0.1:8000/web` for the dashboard (upload a JSON file, or click "Try it with sample data"),
+or `http://127.0.0.1:8000/docs` for interactive OpenAPI docs. Endpoints:
+
+| Method & path | Purpose |
+|---|---|
+| `POST /api/reports` | Run the pipeline against a JSON body (`{"invoices": [...], "transactions": [...], "counterparties": [...]}`), returns the report |
+| `POST /api/reports/upload` | Same, but as a multipart file upload |
+| `GET /api/reports` | List recent runs (id, risk score, summary) |
+| `GET /api/reports/{id}` | Fetch one full report by id |
+| `GET /web` | HTML dashboard: upload form + recent runs |
+| `GET /web/reports/{id}` | HTML report view |
+| `GET /health` | Liveness check |
+
+Design notes:
+- Each pipeline run involves several LLM calls, so requests run in a worker thread
+  (`starlette.concurrency.run_in_threadpool`) rather than blocking the event loop -- the Supervisor itself stays
+  fully synchronous, no agent code had to become async.
+- Reports are persisted to a local SQLite file (`compliance_copilot_api.db` by default, override with
+  `API_DB_PATH`) as JSON blobs -- no ORM, since `ComplianceReport` is already a versioned Pydantic model.
+- The `Supervisor` used per-request is resolved via a FastAPI dependency (`api/deps.py::get_supervisor`), which is
+  exactly how the test suite (`tests/integration/test_api.py`) swaps in a `MockProvider`-backed supervisor with
+  `app.dependency_overrides` -- no network calls in CI here either.
+- Not yet built: auth/rate-limiting (needed before this is public-facing, since every request costs LLM tokens),
+  and real-time per-agent progress streaming (the `GraphEngine` already reports executed/skipped/failed nodes per
+  run -- extending that into SSE/WebSocket events for the dashboard is a natural next step).
 
 ## Project structure
 
@@ -169,9 +207,15 @@ src/compliance_copilot/
   memory/        shared ComplianceState (Pydantic) threaded through the graph
   config.py      environment-variable-driven settings
   cli.py         `compliance-copilot` entry point
+api/             FastAPI JSON API + server-rendered web dashboard (consumes the library above)
+  routes.py      JSON API endpoints
+  web.py         HTML dashboard routes
+  service.py     shared run-pipeline-and-store logic used by both
+  store.py       SQLite-backed report persistence
+  templates/     Jinja2 templates for the dashboard
 tests/
   unit/          per-component tests, mocked LLM
-  integration/   full-graph + provider-switching tests
+  integration/   full-graph, provider-switching, and API layer tests
 examples/        runnable examples + sample input data
 ```
 
@@ -183,4 +227,4 @@ Mermaid diagram if you change the agent graph; and add a `CHANGELOG.md` entry fo
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+MIT -- see [`LICENSE`](LICENSE).

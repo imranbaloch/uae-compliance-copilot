@@ -3,7 +3,19 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.1.0] — 2026-07-29
+## [0.2.0] - 2026-07-29
+
+### Added
+- FastAPI JSON API (`api/routes.py`): `POST /api/reports`, `POST /api/reports/upload`,
+  `GET /api/reports`, `GET /api/reports/{id}` -- a pure consumer of `Supervisor`, no changes to core agent code.
+- Server-rendered HTML dashboard (`api/web.py` + `api/templates/`): upload a JSON file or try sample data, view a
+  rendered report with risk score, findings tables, and recommended actions.
+- SQLite-backed report persistence (`api/store.py`), no ORM.
+- `api` optional dependency group (`pip install -e ".[dev,api]"`) and `make api` entry point.
+- 12 new integration tests (`tests/integration/test_api.py`) covering the API and web routes with a
+  `MockProvider`-backed Supervisor injected via FastAPI dependency overrides.
+
+## [0.1.0] - 2026-07-29
 
 Initial release.
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uae-compliance-copilot"
-version = "0.1.0"
+version = "0.2.0"
 description = "Open-source multi-agent system for UAE SME tax, e-invoicing, and AML/KYC compliance reconciliation"
 readme = "README.md"
 license = { text = "MIT" }
@@ -36,6 +36,12 @@ dev = [
     "pytest-cov>=5.0,<6",
     "ruff>=0.5,<1",
 ]
+api = [
+    "fastapi>=0.111,<1",
+    "uvicorn[standard]>=0.30,<1",
+    "jinja2>=3.1,<4",
+    "python-multipart>=0.0.9,<1",
+]
 
 [project.scripts]
 compliance-copilot = "compliance_copilot.cli:main"
@@ -59,6 +65,9 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"api/*.py" = ["B008"]
 
 [tool.coverage.run]
 source = ["src"]

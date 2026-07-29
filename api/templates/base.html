@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}UAE Compliance Copilot{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="/" style="color:inherit;text-decoration:none;">UAE Compliance Copilot</a></h1>
+      <a href="/docs" target="_blank">API docs &rarr;</a>
+    </header>
+    {% block content %}{% endblock %}
+    <p class="disclaimer">
+      Decision-support tool, not tax/legal/compliance advice. Verify findings with a
+      qualified UAE tax advisor or compliance officer before filing or acting on them.
+    </p>
+  </div>
+</body>
+</html>

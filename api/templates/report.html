@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+
+<p><a href="/" class="muted" style="text-decoration:none;">&larr; back</a></p>
+
+<div class="panel">
+  <div class="summary-row">
+    <div class="risk-badge {{ risk_level }}">{{ envelope.report.risk_score }}</div>
+    <div class="summary-text">
+      {{ envelope.report.summary }}
+      <div class="muted" style="margin-top:0.5rem;font-size:0.8rem;">
+        Run {{ envelope.id }} &middot; {{ envelope.created_at }}
+        {% if envelope.plan %}<br />Plan: {{ envelope.plan }}{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Recommended actions</h2>
+  {% if envelope.report.recommended_actions %}
+    <ul class="actions">
+      {% for action in envelope.report.recommended_actions %}<li>{{ action }}</li>{% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">None.</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <h2>Tax / e-invoicing findings ({{ envelope.report.tax_findings|length }})</h2>
+  {% if envelope.report.tax_findings %}
+  <table>
+    <tr><th>Invoice</th><th>Severity</th><th>Code</th><th>Message</th></tr>
+    {% for f in envelope.report.tax_findings %}
+    <tr>
+      <td>{{ f.invoice_id }}</td>
+      <td><span class="sev sev-{{ f.severity }}">{{ f.severity }}</span></td>
+      <td class="muted">{{ f.code }}</td>
+      <td>{{ f.message }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="empty">No findings.</p>{% endif %}
+</div>
+
+<div class="panel">
+  <h2>Sanctions / PEP screening ({{ envelope.report.sanctions_hits|length }})</h2>
+  {% if envelope.report.sanctions_hits %}
+  <table>
+    <tr><th>Counterparty</th><th>Matched name</th><th>Score</th><th>Review?</th></tr>
+    {% for h in envelope.report.sanctions_hits %}
+    <tr>
+      <td>{{ h.counterparty_name }}</td>
+      <td>{{ h.matched_name }}</td>
+      <td>{{ h.score }}</td>
+      <td>{{ "Yes" if h.requires_review else "No" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="empty">No hits.</p>{% endif %}
+</div>
+
+<div class="panel">
+  <h2>Reconciliation anomalies ({{ envelope.report.anomalies|length }})</h2>
+  {% if envelope.report.anomalies %}
+  <table>
+    <tr><th>Record</th><th>Severity</th><th>Code</th><th>Message</th></tr>
+    {% for a in envelope.report.anomalies %}
+    <tr>
+      <td>{{ a.record_id }}</td>
+      <td><span class="sev sev-{{ a.severity }}">{{ a.severity }}</span></td>
+      <td class="muted">{{ a.code }}</td>
+      <td>{{ a.message }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="empty">No anomalies.</p>{% endif %}
+</div>
+
+<div class="panel">
+  <h2>Run details</h2>
+  <p class="muted" style="font-size:0.85rem;">
+    Executed: {{ envelope.executed|join(", ") if envelope.executed else "—" }}<br />
+    Skipped: {{ envelope.skipped|join(", ") if envelope.skipped else "—" }}<br />
+    Failed: {{ envelope.failed|join(", ") if envelope.failed else "—" }}
+  </p>
+  {% if envelope.report.errors %}
+    <p class="muted" style="font-size:0.85rem;">Agent errors:</p>
+    <ul class="actions muted" style="font-size:0.85rem;">
+      {% for e in envelope.report.errors %}<li>[{{ e.agent }}] {{ e.message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+</div>
+
+{% endblock %}

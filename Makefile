@@ -1,7 +1,13 @@
-.PHONY: install test cov lint format run
+.PHONY: install install-api test cov lint format run api
 
 install:
 	pip install -e ".[dev]"
+
+install-api:
+	pip install -e ".[dev,api]"
+
+api:
+	uvicorn api.app:app --reload
 
 test:
 	pytest
@@ -11,7 +17,3 @@ cov:
 
 lint:
 	ruff check . --fix
-	ruff format .
-
-run:
-	python -m compliance_copilot.cli examples/sample_data/sample_input.json
